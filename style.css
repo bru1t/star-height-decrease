@@ -1,0 +1,45 @@
+body, html {
+    font: 11pt sans;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    color: #fff;
+    background-color: #000;
+}
+button {
+    font-size: 10pt;
+    font-family: Arial;
+}
+#frame {
+    width: 100%;
+    height: 100%;
+}
+#automata-data {
+    border: 1px solid #000;
+    font-family: Consolas;
+    font-size: 11pt;
+    height: 95%;
+    color: #fff;
+    background-color: #000;
+}
+table#data-line {
+  height:135px;
+  width: 360px;
+}
+tr#up-line {
+  height: 200px;
+}
+button#button-data-processing {
+  margin-left: 50%;
+}
+input.regedit {
+    font-family: Consolas;
+    font-size: 11pt;
+    width: 100%;
+}
+#automata-net {
+    float: left;
+    width: 100%;
+    height: 100%;
+}
