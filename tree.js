@@ -847,11 +847,16 @@ Tree.prototype.optimize2 = function (shOnly) {
     var minTree, minSize=1/0, minSH=1/0, minLen=1/0;
 
     var compare = function (tree) {
+
         tree.normalize();
+
         var sh = tree.getStarHeight();
+
         if (sh > minSH)
             return false;
+
         var size = tree.getSize();
+        
         if (sh == minSH && size >= minSize)
             return false;
 

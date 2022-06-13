@@ -3,79 +3,14 @@
 function Test () {
 }
 
-var brute = function (m, callback) {
-    var stack = [];
-    for (var i = 0; i < m; i++)
-        stack.push(1);
-
-    while (stack.length > 1) {
-        var mFact = 1, nFact = 1, count;
-        for (var i = 0; i < stack.length; i++) {
-            if (stack[i-1] != stack[i])
-                count = 1;
-            else
-                count++;
-            mFact *= count;
-            nFact *= i+1;
-        }
-
-        callback(stack, nFact/mFact);
-        //console.log(nFact, mFact, nFact/mFact + "; " + (stack + "").replace(/,/g, " "));
-
-        var val = stack[stack.length-1] - 1;
-        var k = ++stack[stack.length-2];
-        stack.pop();
-        while (val >= k) {
-            stack.push(k);
-            val -= k;
-        }
-        stack[stack.length-1] += val;
-    }
-}
-
-// n - tree size, m - alphabet size
-var computed = {};
-var treeCount = function(m, n, type) {
-    n = n | 0;
-    if (n < 1)
-        return 0;
-    if (n == 1)
-        return m - ((type=="*" || type=="&") | 0);
-    if (n == 2)
-        return m - 1;
-
-    if (computed[[n,m,type]+""])
-        return computed[[n,m,type]+""];
-
-    var count = 0;
-    if (type != "*" && n > 3)
-        count += treeCount(m, n-1, "*");
-
-    var count_or = 0, count_con = 0;
-    brute(n-1, function (sizes, seqCount) {
-        var count_or1 = 1, count_con1 = 1;
-        for (var i = 0; i < sizes.length; i++) {
-            count_or1 *= treeCount(m, sizes[i], "+");
-            count_con1 *= treeCount(m, sizes[i], "&");
-        }
-        count_or += count_or1 * seqCount;
-        count_con += count_con1 * seqCount;
-    });
-
-    if (type != "+")
-        count += count_or;
-    if (type != "&")
-        count += count_con;
-
-    computed[[n,m,type]+""] = count;
-
-    return count;
-}
-
+// TEST - MAIN RUN METHOD
 Test.runTest = function () {
+
     var ctx, t0;
     var size=11, step=1000, timeout=1;
+
     var test = function () {
+
         if (size > 11)
             return;
 
@@ -84,14 +19,14 @@ Test.runTest = function () {
             ctx = Test.genBrute("ab", size, true);
         }
 
-        for (var i = 0; i < step && !ctx.func(); i++)
-            ;
+        for (var i = 0; i < step && !ctx.func(); i++);
 
         var finish = ctx.finish;
         var dt = new Date().getTime() - t0;
         var speed = Math.round(10 * ctx.count * 1000 / dt)/10;
         var estimate = Math.round((ctx.estimate - ctx.count) / speed);
-        $("#regex_output")[0].value =
+
+        $("#data-output")[0].value =
             size +
             " | " + Math.round(dt / 1000) + "/" + (estimate + Math.round(dt / 1000)) +
             " | " + Math.round(1000 * ctx.count / ctx.estimate)/10 + "%" +
@@ -113,21 +48,34 @@ Test.runTest = function () {
         }
 
         setTimeout(test, timeout);
+
     };
+
     test();
+
 };
 
+// TEST - DATA GENERATION
 Test.gen = function (alpha, length, seed) {
+
     var rnd = function (n) {
+
         if (n < 2)
             return 0;
+
         var result = seed % n;
+
         seed = Math.floor(seed / n);
+
         return result;
+
     };
+
     return Test.genTree(alpha, length, rnd);
+
 };
 
+// TEST - TREE GENERATION
 Test.genTree = function (alpha, maxSize, rnd, retCallback) {
     var typecase = {
         "empty": ["atom", "*", "+", "&"],
@@ -219,25 +167,8 @@ Test.genTree = function (alpha, maxSize, rnd, retCallback) {
                 size += count-1; // reserve size
                 for (var i = 0; i < count-1; i++, size--)
                     tree.value.push(gen(newType, false));
-                tree.value.push(gen(newType, true)); // !tree.canBeEmpty() && type != "*"));
+                tree.value.push(gen(newType, true));
 
-                //if (tree.getSize() == maxSize) {
-                //    if (!window.test1)
-                //        window.test1 = {};
-                //    if (!window.test2)
-                //        window.test2 = {};
-                //    var index = tree.value.map(function (t) { return t.getSize(); });
-                //    var index1 = index+"";
-                //    if (window.test2[index1] == undefined) {
-                //        index = index.sort()+"";
-                //        if (window.test1[index] == undefined)
-                //            window.test1[index] = 1;
-                //        else
-                //            window.test1[index]++;
-                //        window.test2[index1] = 1;
-                //    }
-                //    //console.log(tree+"");
-                //}
 
                 return tree;
         }
@@ -282,9 +213,6 @@ Test.genBrute = function (alpha, size, retCallback, part) {
         if (ctx.finish)
             return true;
 
-        //var seed = 0, isValid;
-        //for (var i = 0; i < stackSize; i++)
-        //    seed = seed * stack[i][1] + stack[i][0];
         var isValid = true;
 
         if (isValid) {
@@ -293,8 +221,7 @@ Test.genBrute = function (alpha, size, retCallback, part) {
             ctx.count++;
 
             do {
-                //if (ctx.count % 3 != part)
-                //    break;
+
 
                 var minTree = function (t1, t2, t3) {
                     if (t3)
@@ -317,13 +244,9 @@ Test.genBrute = function (alpha, size, retCallback, part) {
 
                 if (tree.getStarHeight() < 1)
                     break;
-                //if (tree.getSize() < size)
-                //    break;
+
                 tree.normalize();
-                //if (tree.getSize() < size)
-                //    break;
-                //if (tree.getStarHeight() < 2)
-                //    break;
+
 
                 var t = tree+"";
                 if (ctx.regs[t]) {
@@ -348,10 +271,7 @@ Test.genBrute = function (alpha, size, retCallback, part) {
                 if (tree3.getStarHeight() >= tree2.getStarHeight())
                     break;
                 ctx.regsCount2++;
-                //if (!ctx.regs3)
-                //    ctx.regs3 = {};
-                //var t3 = tree3+"";
-                //ctx.regs3[t] = t3;
+
 
                 break;
                 ///////////////////////////////////////////
@@ -454,6 +374,7 @@ Test.genBrute = function (alpha, size, retCallback, part) {
 };
 
 Test.testOptimize = function () {
+
     var regs = JSON.parse(localStorage["regs"]);
     var succ = [], fail = [];
     var succ_size = [], succ_len = [];
@@ -461,8 +382,10 @@ Test.testOptimize = function () {
     var time2 = time;
 
     for (var i = 0; i < regs.length; i++) {
+
         var t0 = new Tree(regs[i]);
         var t = DFA(t0).toTree(5);
+
         if (t.getStarHeight() <= t0.getStarHeight())
             continue;
 
@@ -487,5 +410,77 @@ Test.testOptimize = function () {
 };
 
 window.Test = Test;
+
+var brute = function (m, callback) {
+    var stack = [];
+    for (var i = 0; i < m; i++)
+        stack.push(1);
+
+    while (stack.length > 1) {
+        var mFact = 1, nFact = 1, count;
+        for (var i = 0; i < stack.length; i++) {
+            if (stack[i-1] != stack[i])
+                count = 1;
+            else
+                count++;
+            mFact *= count;
+            nFact *= i+1;
+        }
+
+        callback(stack, nFact/mFact);
+
+        var val = stack[stack.length-1] - 1;
+        var k = ++stack[stack.length-2];
+
+        stack.pop();
+
+        while (val >= k) {
+            stack.push(k);
+            val -= k;
+        }
+
+        stack[stack.length-1] += val;
+
+    }
+}
+
+var computed = {};
+
+var treeCount = function(m, n, type) {
+    n = n | 0;
+    if (n < 1)
+        return 0;
+    if (n == 1)
+        return m - ((type=="*" || type=="&") | 0);
+    if (n == 2)
+        return m - 1;
+
+    if (computed[[n,m,type]+""])
+        return computed[[n,m,type]+""];
+
+    var count = 0;
+    if (type != "*" && n > 3)
+        count += treeCount(m, n-1, "*");
+
+    var count_or = 0, count_con = 0;
+    brute(n-1, function (sizes, seqCount) {
+        var count_or1 = 1, count_con1 = 1;
+        for (var i = 0; i < sizes.length; i++) {
+            count_or1 *= treeCount(m, sizes[i], "+");
+            count_con1 *= treeCount(m, sizes[i], "&");
+        }
+        count_or += count_or1 * seqCount;
+        count_con += count_con1 * seqCount;
+    });
+
+    if (type != "+")
+        count += count_or;
+    if (type != "&")
+        count += count_con;
+
+    computed[[n,m,type]+""] = count;
+
+    return count;
+}
 
 })();
